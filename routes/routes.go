@@ -11,6 +11,7 @@ func HandleRequests() {
 	r.GET("/:name", controller.Greetings)
 	r.GET("/users/:id", controller.GetUserById)
 	r.POST("/users", controller.CreateNewUser)
+	r.PATCH("users/:id", controller.EditUser)
 	r.DELETE("/users/:id", controller.DeleteUser)
 	r.Run(":8080")
 }

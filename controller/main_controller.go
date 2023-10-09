@@ -35,11 +35,36 @@ func DeleteUser(c *gin.Context) {
 
 	if user.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"Result": "Fail. The user with id " + id + " doesnt exist",
+			"message": "Fail. The user with id " + id + " doesnt exist",
 		})
 		return
 	}
 
+	c.JSON(http.StatusOK, user)
+}
+
+func EditUser(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var user user_model.UserModel
+	database.DB.First(&user, id)
+
+	if user.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Fail. The user with id " + id + " doesnt exist",
+		})
+
+		return
+	}
+
+	// if record is empty return error message to the client
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	database.DB.Model(&user).UpdateColumns(user)
 	c.JSON(http.StatusOK, user)
 }
 
@@ -56,7 +81,7 @@ func GetUserById(c *gin.Context) {
 
 	if user.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"Result": "Fail. The user with id" + id + "doesnt exist",
+			"Result": "Fail. The user with id " + id + " doesnt exist",
 		})
 		return
 	}
