@@ -81,10 +81,27 @@ func GetUserById(c *gin.Context) {
 
 	if user.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"Result": "Fail. The user with id " + id + " doesnt exist",
+			"message": "Fail. The user with id " + id + " doesnt exist",
 		})
 		return
 	}
+	c.JSON(http.StatusOK, user)
+}
+
+func FindUserBySocialNumber(c *gin.Context) {
+	var user user_model.UserModel
+	socialNumber := c.Param("social_number")
+
+	database.DB.Where(&user_model.UserModel{SocialNumber: socialNumber}).First(&user)
+
+	if user.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Fail. The user with social number " + socialNumber + " doesnt exist",
+		})
+
+		return
+	}
+
 	c.JSON(http.StatusOK, user)
 }
 

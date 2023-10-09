@@ -10,6 +10,7 @@ func HandleRequests() {
 	r.GET("/users", controller.ShowAllUsers)
 	r.GET("/:name", controller.Greetings)
 	r.GET("/users/:id", controller.GetUserById)
+	r.GET("/users/social/:social_number", controller.FindUserBySocialNumber)
 	r.POST("/users", controller.CreateNewUser)
 	r.PATCH("users/:id", controller.EditUser)
 	r.DELETE("/users/:id", controller.DeleteUser)
