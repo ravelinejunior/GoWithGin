@@ -127,6 +127,6 @@ func Greetings(c *gin.Context) {
 	name := c.Params.ByName("name")
 
 	c.JSON(200, gin.H{
-		"Greetings ": "How are you " + name,
+		"Greetings": "Hello pretty soul of " + name + ", how are you?",
 	})
 }
