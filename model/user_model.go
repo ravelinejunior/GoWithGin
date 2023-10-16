@@ -1,15 +1,25 @@
 package user_model
 
-import "gorm.io/gorm"
+import (
+	"gopkg.in/validator.v2"
+	"gorm.io/gorm"
+)
 
 type UserModel struct {
 	gorm.Model
-	Name         string `json:"name"`
-	Description  string `json:"description"`
-	SocialNumber string `json:"social_number"`
+	Name         string `json:"name" validate:"nonzero"`
+	Description  string `json:"description" validate:"min=10"`
+	SocialNumber string `json:"social_number" validate:"min=8, regexp=^[0-9]"`
 }
 
-var Users []UserModel = []UserModel{
+func ValidateUserData(user *UserModel) error {
+	if err := validator.Validate(user); err != nil {
+		return err
+	}
+	return nil
+}
+
+var UsersList []UserModel = []UserModel{
 	{
 		Name:         "Raveline",
 		Description:  "oasdnal ajsldhj asdlja hdjlahs dlkas",
