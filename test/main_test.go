@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -76,4 +80,69 @@ func TestSearchUserBySocialNumberHandler(t *testing.T) {
 	response := httptest.NewRecorder()
 	r.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
+}
+
+func TestSearchUserByIdHandler(t *testing.T) {
+	database.ConnectDatabase()
+	CreateUserMocked()
+	defer DeleteUserMocked()
+	r := SetupTestRoutes()
+	r.GET("users/:id", controller.GetUserById)
+	searchPath := "/users/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("GET", searchPath, nil)
+	response := httptest.NewRecorder()
+	r.ServeHTTP(response, req)
+	var mockUser user_model.UserModel
+	json.Unmarshal(response.Body.Bytes(), &mockUser)
+
+	log.Default().Println(mockUser)
+
+	assert.Equal(t, "Raveline", mockUser.Name, "Should be equal")
+	assert.Equal(t, "Seak for the truth", mockUser.Description)
+	assert.Equal(t, "1212121212", mockUser.SocialNumber)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+}
+
+func TestDeleteUser(t *testing.T) {
+	database.ConnectDatabase()
+	CreateUserMocked()
+	r := SetupTestRoutes()
+	r.DELETE("users/:id", controller.DeleteUser)
+	deletePath := "/users/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("DELETE", deletePath, nil)
+	response := httptest.NewRecorder()
+	r.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+}
+
+func TestEditUser(t *testing.T) {
+	database.ConnectDatabase()
+	CreateUserMocked()
+	defer DeleteUserMocked()
+	r := SetupTestRoutes()
+	r.PATCH("users/:id", controller.EditUser)
+	user := user_model.UserModel{
+		Name:         "Raveline Junior",
+		Description:  "Seak for the truth, even if it hurts",
+		SocialNumber: "269498421.22",
+	}
+
+	jsonValue, _ := json.Marshal(user)
+	editPath := "/users/" + strconv.Itoa(ID)
+
+	req, _ := http.NewRequest("PATCH", editPath, bytes.NewBuffer(jsonValue))
+	response := httptest.NewRecorder()
+
+	r.ServeHTTP(response, req)
+
+	var mockedUser user_model.UserModel
+	json.Unmarshal(response.Body.Bytes(), &mockedUser)
+
+	log.Default().Println(mockedUser)
+
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, "Raveline Junior", user.Name)
+	assert.Equal(t, "Seak for the truth, even if it hurts", user.Description)
+	assert.Equal(t, "269498421.22", user.SocialNumber)
 }
