@@ -117,3 +117,15 @@ func Greetings(c *gin.Context) {
 		"Greetings": "Hello pretty soul of " + name + ", how are you?",
 	})
 }
+
+func ShowIndexPage(c *gin.Context) {
+	var users []user_model.UserModel
+	database.DB.Find(&users)
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"users": users,
+	})
+}
+
+func RouteNotFound(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "not_found.html", nil)
+}
